@@ -1,7 +1,7 @@
 // Countdown to 1 December (her birthday)
 const now = new Date();
 let year = now.getFullYear();
-let target = new Date(year, 11, 1, 0, 0, 0); // 1 Dec, month index 11
+let target = new Date(year, 02, 18, 0, 0, 0); // 1 Dec, month index 11
 if (now > target) {
   year += 1;
   target = new Date(year, 11, 1, 0, 0, 0);
@@ -73,6 +73,7 @@ function shootConfetti(count = 150) {
 }
 
 function celebrate() {
-  document.title = "🎂 Happy Birthday, Shaguna!";
+  document.title = "🎂 Happy Birthday, Arpita!";
   shootConfetti(300);
 }
+
