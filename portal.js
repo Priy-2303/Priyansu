@@ -3,7 +3,7 @@ const now = new Date();
 let year = now.getFullYear();
 
 // Month index 11 = December, Day 1 = 1st
-let target = new Date(year, 11, 1, 0, 0, 0); 
+let target = new Date(2026, 7, 27, 0, 0, 0); 
 
 // If December 1st of this year has already passed, set it for next year
 if (now > target) {
