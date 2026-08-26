@@ -77,4 +77,14 @@ function celebrate() {
   shootConfetti(300);
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const cards = document.querySelectorAll(".wish-card");
+
+  cards.forEach((card) => {
+    card.addEventListener("click", () => {
+      card.classList.toggle("flipped");
+    });
+  });
+});
+
 
