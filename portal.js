@@ -1,11 +1,16 @@
 // Countdown to 1 December (her birthday)
 const now = new Date();
 let year = now.getFullYear();
-let target = new Date(year, 1, 18, 0, 0, 0); // 1 Dec, month index 11
+
+// Month index 11 = December, Day 1 = 1st
+let target = new Date(year, 11, 1, 0, 0, 0); 
+
+// If December 1st of this year has already passed, set it for next year
 if (now > target) {
   year += 1;
   target = new Date(year, 11, 1, 0, 0, 0);
 }
+
 const targetMs = target.getTime();
 
 const dEl = document.getElementById("d");
