@@ -1,131 +1,99 @@
-// === Countdown setup ===
-// Set target birthday: 1 December of this year
-const now = new Date();
-let targetYear = now.getFullYear();
-let targetDate = new Date(targetYear, 11, 1, 0, 0, 0); // month 11 = Dec
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Click-to-Burst Floating Hearts/Sparkles Effect
+  document.addEventListener("click", (e) => {
+    // Ignore clicks on buttons/links to prevent visual clutter on navigation
+    if (e.target.closest("a, button")) return;
 
-// If this year's 1 Dec has passed, use next year
-if (now > targetDate) {
-  targetYear += 1;
-  targetDate = new Date(targetYear, 11, 1, 0, 0, 0);
-}
+    const emojiCount = 6;
+    const emojis = ["✨", "💖", "🎂", "🌸", "⭐"];
 
-const countdownTarget = targetDate.getTime();
+    for (let i = 0; i < emojiCount; i++) {
+      const particle = document.createElement("span");
+      particle.className = "click-particle";
+      particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
-// Circle lengths (circumference = 2πr, r = 50)
-const CIRC = 2 * Math.PI * 50;
-const maxDays = 365;
+      // Position particle at click location
+      particle.style.left = `${e.clientX}px`;
+      particle.style.top = `${e.clientY}px`;
 
-const circles = {
-  days: document.getElementById("days-circle"),
-  hours: document.getElementById("hours-circle"),
-  minutes: document.getElementById("minutes-circle"),
-  seconds: document.getElementById("seconds-circle")
-};
+      // Randomize movement directions
+      const destinationX = (Math.random() - 0.5) * 120;
+      const destinationY = (Math.random() - 0.5) * 120 - 40;
+      particle.style.setProperty("--dx", `${destinationX}px`);
+      particle.style.setProperty("--dy", `${destinationY}px`);
 
-Object.values(circles).forEach(c => {
-  c.style.strokeDasharray = CIRC;
-  c.style.strokeDashoffset = CIRC;
+      document.body.appendChild(particle);
+
+      // Clean up DOM after animation completes
+      setTimeout(() => particle.remove(), 1000);
+    }
+  });
+
+  // 2. Intersection Observer (Smooth Fade & Slide-In on Scroll)
+  const animatedElements = document.querySelectorAll(
+    ".card-hover-item, .gallery-item, .message-card"
+  );
+
+  animatedElements.forEach((el) => el.classList.add("reveal-on-scroll"));
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("revealed");
+          observer.unobserve(entry.target); // Animate only once
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+
+  animatedElements.forEach((el) => observer.observe(el));
+
+  // 3. Interactive Typing Animation for Hero Subtitle
+  const subtitle = document.querySelector(".subtitle");
+  if (subtitle) {
+    const originalText = subtitle.textContent.trim();
+    subtitle.textContent = "";
+    let charIndex = 0;
+
+    function typeWriter() {
+      if (charIndex < originalText.length) {
+        subtitle.textContent += originalText.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeWriter, 40);
+      }
+    }
+
+    // Start typing after a short delay
+    setTimeout(typeWriter, 500);
+  }
 });
 
-const confettiContainer = document.getElementById("confetti-container");
-let confettiInterval = null;
-let finished = false;
+window.addEventListener("load", () => {
+  // Fire confetti burst
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+});
 
-function updateCountdown() {
-  const current = new Date().getTime();
-  const distance = countdownTarget - current;
+// Create lightbox element dynamically
+const lightbox = document.createElement("div");
+lightbox.className = "lightbox";
+lightbox.innerHTML = `<img src="" alt="Enlarged memory">`;
+document.body.appendChild(lightbox);
 
-  if (distance <= 0) {
-    document.getElementById("days").textContent = "00";
-    document.getElementById("hours").textContent = "00";
-    document.getElementById("minutes").textContent = "00";
-    document.getElementById("seconds").textContent = "00";
+const lightboxImg = lightbox.querySelector("img");
 
-    if (!finished) {
-      finished = true;
-      launchConfetti();
-      flashTitle();
-    }
-    return;
-  }
+document.querySelectorAll(".gallery-item img").forEach((img) => {
+  img.addEventListener("click", () => {
+    lightboxImg.src = img.src;
+    lightbox.style.display = "flex";
+  });
+});
 
-  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor(
-    (distance % (1000 * 60 * 60)) / (1000 * 60)
-  );
-  const seconds = Math.floor(
-    (distance % (1000 * 60)) / 1000
-  );
-
-  document.getElementById("days").textContent = String(days).padStart(2, "0");
-  document.getElementById("hours").textContent = String(hours).padStart(2, "0");
-  document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
-  document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
-
-  // Circle progress (0 = full, CIRC = empty)
-  const dayRatio = Math.min(days / maxDays, 1);
-  circles.days.style.strokeDashoffset = CIRC * dayRatio;
-
-  const hourRatio = hours / 24;
-  circles.hours.style.strokeDashoffset = CIRC * hourRatio;
-
-  const minRatio = minutes / 60;
-  circles.minutes.style.strokeDashoffset = CIRC * minRatio;
-
-  const secRatio = seconds / 60;
-  circles.seconds.style.strokeDashoffset = CIRC * secRatio;
-
-  requestAnimationFrame(updateCountdown);
-}
-
-requestAnimationFrame(updateCountdown);
-
-// === Confetti ===
-
-function createConfettiPiece() {
-  const confetti = document.createElement("div");
-  confetti.classList.add("confetti");
-  confetti.style.left = Math.random() * 100 + "vw";
-  confetti.style.animationDuration = 2.5 + Math.random() * 1.5 + "s";
-  confetti.style.transform = `translate3d(0, -100%, 0) rotate(${Math.random() * 360}deg)`;
-  confettiContainer.appendChild(confetti);
-
-  setTimeout(() => {
-    confetti.remove();
-  }, 4000);
-}
-
-function launchConfetti() {
-  if (confettiInterval) return;
-  confettiInterval = setInterval(() => {
-    for (let i = 0; i < 12; i++) {
-      createConfettiPiece();
-    }
-  }, 250);
-
-  // stop after 7 seconds
-  setTimeout(() => {
-    clearInterval(confettiInterval);
-  }, 7000);
-}
-
-// Small tab-title effect when time is up
-function flashTitle() {
-  const original = document.title;
-  let flag = false;
-  const interval = setInterval(() => {
-    document.title = flag
-      ? "🎂 Happy Birthday, Shaguna!"
-      : original;
-    flag = !flag;
-  }, 900);
-
-  setTimeout(() => {
-    clearInterval(interval);
-    document.title = original;
-  }, 9000);
-}
+lightbox.addEventListener("click", () => {
+  lightbox.style.display = "none";
+});
