@@ -299,6 +299,8 @@ body {
   margin-bottom: 1.5rem;
 }
 
+/* Wishes section card flip styles */
+
 .wish-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -306,34 +308,56 @@ body {
 }
 
 .wish-card {
+  background-color: transparent;
+  perspective: 1000px; /* Enables 3D perspective */
+  height: 180px;
+  cursor: pointer;
+}
+
+.wish-card-inner {
   position: relative;
-  padding: 1.2rem 1.1rem 1.3rem;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* Flipped state activated via JavaScript class */
+.wish-card.flipped .wish-card-inner {
+  transform: rotateY(180deg);
+}
+
+.wish-card-front,
+.wish-card-back {
+  position: absolute;
+  inset: 0;
+  padding: 1.2rem 1.1rem;
   border-radius: 20px;
   background: rgba(7, 12, 40, 0.92);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 14px 32px rgba(0,0,0,0.8);
-  transform: translateY(0);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.wish-card::before {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  background: radial-gradient(circle at top, rgba(255,255,255,0.18), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.25s ease;
+.wish-card-front {
+  border-color: rgba(124, 246, 255, 0.3);
 }
 
-.wish-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.9);
-  border-color: rgba(255,232,130,0.9);
+.wish-card-front p {
+  font-size: 0.85rem;
+  color: #7cf6ff;
+  margin-top: 0.5rem;
 }
 
-.wish-card:hover::before {
-  opacity: 1;
+.wish-card-back {
+  transform: rotateY(180deg);
+  border-color: rgba(255, 232, 130, 0.6);
 }
 
 .wish-card h3 {
@@ -346,6 +370,7 @@ body {
   font-size: 0.93rem;
   color: #e4e8ff;
 }
+
 
 .signature {
   margin-top: 1.8rem;
